@@ -11,3 +11,15 @@ function BusCard({ bus }) {
 }
 
 export default BusCard
+
+function BusCard({ bus }) {
+  return (
+    <div className="bus-card">
+      <h3>Route {bus.route}</h3>
+      <p>Status: {bus.status}</p>
+      <p>Speed: {bus.speed} km/h</p>
+    </div>
+  );
+}
+
+export default BusCard;
