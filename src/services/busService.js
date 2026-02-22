@@ -22,3 +22,9 @@ export const getMockStops = () => {
     { id: 3, name: "Engineering Block" }
   ]
 }
+
+export const fetchBuses = async () => {
+  const res = await fetch("YOUR_API_URL_HERE");
+  if (!res.ok) throw new Error("Failed to fetch bus data");
+  return res.json();
+};
