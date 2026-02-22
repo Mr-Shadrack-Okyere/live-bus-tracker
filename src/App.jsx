@@ -39,4 +39,18 @@ function App() {
   )
 }
 
+import Map from "./components/Map";
+import BusStopSelector from "./components/BusStopSelector";
+
+function App() {
+  return (
+    <div>
+      <h1>Live Bus Tracker</h1>
+      <BusStopSelector />
+      <Map />
+    </div>
+  );
+}
+
+export default App;
 export default App
