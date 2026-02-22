@@ -1,46 +1,27 @@
-function Map() {
-  return (
-    <div className="bg-white p-4 rounded shadow h-64 flex items-center justify-center">
-      <p className="text-gray-500">
-        Map will display live bus locations here
-      </p>
-    </div>
-  )
-}
-
-export default Map
-
 import { useEffect, useState } from "react";
-import { fetchBuses } from "../services/busService";
+import { getMockBuses } from "../services/busService";
 
 function Map() {
   const [buses, setBuses] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const loadBuses = async () => {
-    try {
-      const data = await fetchBuses();
-      setBuses(data);
-      setLoading(false);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   useEffect(() => {
-    loadBuses();
-    const interval = setInterval(loadBuses, 10000);
-    return () => clearInterval(interval);
+    const data = getMockBuses();
+    setBuses(data);
+    setLoading(false);
   }, []);
 
   if (loading) return <p>Loading live buses...</p>;
 
   return (
-    <div>
-      {/* your map library here */}
+    <div className="bg-white p-4 rounded shadow">
+      <h2 className="font-semibold mb-2">Live Buses</h2>
+
       {buses.map(bus => (
-        <div key={bus.id}>
-          {bus.route} — {bus.lat}, {bus.lng}
+        <div key={bus.id} className="border p-2 mb-2 rounded">
+          <p><strong>Bus:</strong> {bus.number}</p>
+          <p><strong>Route:</strong> {bus.route}</p>
+          <p><strong>ETA:</strong> {bus.eta} mins</p>
         </div>
       ))}
     </div>
