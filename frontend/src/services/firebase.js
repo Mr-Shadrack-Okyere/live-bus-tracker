@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, onValue } from "firebase/database";
+import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBDKYX5hhqPosEG5o0V93qKcri7_o8JUEE",
@@ -12,13 +12,4 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
-
-export const listenToBusLocation = (callback) => {
-  const busRef = ref(database, "bus/location");
-
-  onValue(busRef, (snapshot) => {
-    const data = snapshot.val();
-    if (data) callback(data);
-  });
-};
+export const db = getDatabase(app);

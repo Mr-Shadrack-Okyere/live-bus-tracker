@@ -1,12 +1,10 @@
 import Map from "./components/Map";
+import PhoneTracker from "./components/PhoneTracker";
 
 function App() {
   return (
     <div>
-      <h1 style={{ textAlign: "center" }}>
-        KNUST Live Bus Tracker
-      </h1>
-
+      <PhoneTracker />
       <Map />
     </div>
   );
