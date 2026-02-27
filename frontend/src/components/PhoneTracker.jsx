@@ -3,12 +3,20 @@ import { db } from "../services/firebase";
 import { ref, set } from "firebase/database";
 
 function PhoneTracker() {
-  const [status, setStatus] = useState("Waiting for GPS...");
+  const [status, setStatus] = useState("Starting GPS...");
 
   useEffect(() => {
     if (!navigator.geolocation) {
-      setStatus("GPS not supported");
+      setStatus("GPS not supported on this device");
       return;
+    }
+
+    let deviceId = localStorage.getItem("deviceId");
+
+    if (!deviceId) {
+      const name = prompt("Enter tracker name (Bus A, Walker 1, etc)");
+      deviceId = name || crypto.randomUUID();
+      localStorage.setItem("deviceId", deviceId);
     }
 
     const watchId = navigator.geolocation.watchPosition(
@@ -16,11 +24,7 @@ function PhoneTracker() {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
 
-        // unique device id
-        const deviceId = localStorage.getItem("deviceId") || crypto.randomUUID();
-        localStorage.setItem("deviceId", deviceId);
-
-        set(ref(db, `buses/${deviceId}`), {
+        set(ref(db, "buses/" + deviceId), {
           latitude,
           longitude,
           updatedAt: Date.now(),
@@ -29,7 +33,7 @@ function PhoneTracker() {
         setStatus("Location sent ✅");
       },
       (error) => {
-        setStatus("GPS error: " + error.message);
+        setStatus("GPS Error: " + error.message);
       },
       {
         enableHighAccuracy: true,
@@ -42,8 +46,8 @@ function PhoneTracker() {
   }, []);
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold">Phone GPS Sender</h2>
+    <div style={{ padding: 12 }}>
+      <h2>Phone Tracker</h2>
       <p>{status}</p>
     </div>
   );

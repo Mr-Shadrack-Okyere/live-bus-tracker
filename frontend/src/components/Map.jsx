@@ -1,49 +1,40 @@
-import { useEffect, useState } from "react";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { useEffect, useRef } from "react";
 import { db } from "../services/firebase";
 import { ref, onValue } from "firebase/database";
 
-const containerStyle = {
-  width: "100%",
-  height: "500px",
-};
-
-const center = {
-  lat: 6.6736,
-  lng: -1.5710,
-};
-
-function Map() {
-  const [buses, setBuses] = useState({});
-
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-  });
+export default function Map() {
+  const mapRef = useRef(null);
+  const markerRef = useRef(null);
 
   useEffect(() => {
-    const busesRef = ref(db, "buses");
+    const knustCenter = { lat: 6.6738, lng: -1.5716 };
 
-    onValue(busesRef, (snapshot) => {
-      const data = snapshot.val() || {};
-      setBuses(data);
+    const map = new window.google.maps.Map(mapRef.current, {
+      center: knustCenter,
+      zoom: 15,
+    });
+
+    markerRef.current = new window.google.maps.Marker({
+      position: knustCenter,
+      map,
+      title: "Bus Location",
+    });
+
+    const locationRef = ref(db, "bus/location");
+
+    onValue(locationRef, (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+
+      const position = {
+        lat: data.latitude,
+        lng: data.longitude,
+      };
+
+      markerRef.current.setPosition(position);
+      map.panTo(position);
     });
   }, []);
 
-  if (!isLoaded) return <p>Loading map...</p>;
-
-  return (
-    <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={15}>
-      {Object.values(buses).map((bus, index) => (
-        <Marker
-          key={index}
-          position={{
-            lat: bus.latitude,
-            lng: bus.longitude,
-          }}
-        />
-      ))}
-    </GoogleMap>
-  );
+  return <div ref={mapRef} style={{ width: "100%", height: "100vh" }} />;
 }
-
-export default Map;

@@ -1,13 +1,7 @@
-import Map from "./components/Map";
-import PhoneTracker from "./components/PhoneTracker";
+import Tracker from "./components/Tracker";
 
 function App() {
-  return (
-    <div>
-      <PhoneTracker />
-      <Map />
-    </div>
-  );
+  return <Tracker />;
 }
 
 export default App;
