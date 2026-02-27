@@ -1,40 +1,33 @@
-import { useEffect, useRef } from "react";
-import { db } from "../services/firebase";
+import { useEffect, useState } from "react";
+import { database } from "../services/firebase";
 import { ref, onValue } from "firebase/database";
+import BusCard from "./BusCard";
 
-export default function Map() {
-  const mapRef = useRef(null);
-  const markerRef = useRef(null);
+function Map() {
+  const [busLocation, setBusLocation] = useState(null);
 
   useEffect(() => {
-    const knustCenter = { lat: 6.6738, lng: -1.5716 };
+    const busRef = ref(database, "bus/location");
 
-    const map = new window.google.maps.Map(mapRef.current, {
-      center: knustCenter,
-      zoom: 15,
-    });
-
-    markerRef.current = new window.google.maps.Marker({
-      position: knustCenter,
-      map,
-      title: "Bus Location",
-    });
-
-    const locationRef = ref(db, "bus/location");
-
-    onValue(locationRef, (snapshot) => {
+    onValue(busRef, (snapshot) => {
       const data = snapshot.val();
-      if (!data) return;
-
-      const position = {
-        lat: data.latitude,
-        lng: data.longitude,
-      };
-
-      markerRef.current.setPosition(position);
-      map.panTo(position);
+      if (data) {
+        setBusLocation(data);
+      }
     });
   }, []);
 
-  return <div ref={mapRef} style={{ width: "100%", height: "100vh" }} />;
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <div className="bg-gray-200 w-full max-w-md h-64 rounded flex items-center justify-center">
+        <p className="text-gray-600">
+          Live map connected to Firebase
+        </p>
+      </div>
+
+      <BusCard bus={busLocation} />
+    </div>
+  );
 }
+
+export default Map;
