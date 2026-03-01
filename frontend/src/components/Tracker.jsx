@@ -1,49 +1,51 @@
-import { useEffect } from "react";
-import { ref, set } from "firebase/database";
-import { db } from "../services/firebase";
+import { useState } from "react";
+import { getDatabase, ref, set } from "firebase/database";
+import { app } from "./firebase";
 
-export default function Tracker() {
+function Tracker() {
+  const [tracking, setTracking] = useState(false);
+  const db = getDatabase(app);
 
-  useEffect(() => {
-
+  const startTracking = () => {
     if (!navigator.geolocation) {
-      alert("Geolocation not supported");
+      alert("GPS not supported on this device");
       return;
     }
 
-    const watchId = navigator.geolocation.watchPosition(
+    setTracking(true);
+
+    navigator.geolocation.watchPosition(
       (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
+        const { latitude, longitude } = position.coords;
 
-        console.log("Sending location:", lat, lng);
-
+        // SEND TO FIREBASE
         set(ref(db, "bus/location"), {
-          latitude: lat,
-          longitude: lng,
-          timestamp: Date.now()
+          lat: latitude,
+          lng: longitude,
+          time: Date.now(),
         });
+
+        console.log("Location sent:", latitude, longitude);
       },
       (error) => {
         console.error(error);
-        alert("Location permission denied");
+        alert("Failed to get location");
       },
       {
         enableHighAccuracy: true,
         maximumAge: 0,
-        timeout: 5000
+        timeout: 10000,
       }
     );
-
-    return () => navigator.geolocation.clearWatch(watchId);
-
-  }, []);
+  };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>📡 Tracker Running</h2>
-      <p>Keep this page open.</p>
-      <p>Your location is being sent.</p>
+    <div className="panel">
+      <button className="primary" onClick={startTracking}>
+        {tracking ? "Tracking Active" : "Start Tracking"}
+      </button>
     </div>
   );
 }
+
+export default Tracker;

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>KNUST Shuttle GPS Sender</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 80px;
+    }
+    button {
+      padding: 15px 25px;
+      font-size: 18px;
+      background: #0a7cff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>KNUST Shuttle Tracker</h2>
+  <button onclick="startTracking()">Start Sending Location</button>
+  <div id="status">Waiting...</div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBDKYX5hhqPosEG5o0V93qKcri7_o8JUEE",
+      authDomain: "knust-bus-tracker-dc17a.firebaseapp.com",
+      databaseURL: "https://knust-bus-tracker-dc17a-default-rtdb.firebaseio.com",
+      projectId: "knust-bus-tracker-dc17a",
+      storageBucket: "knust-bus-tracker-dc17a.firebasestorage.app",
+      messagingSenderId: "158223988613",
+      appId: "1:158223988613:web:9113518da58c4eacc9b6ec"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function startTracking() {
+      if (!navigator.geolocation) {
+        document.getElementById("status").innerText = "GPS not supported";
+        return;
+      }
+
+      navigator.geolocation.watchPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          db.ref("bus/location").set({
+            lat: lat,
+            lng: lng,
+            time: Date.now()
+          });
+
+          document.getElementById("status").innerText =
+            "Sending: " + lat.toFixed(5) + ", " + lng.toFixed(5);
+        },
+        (error) => {
+          document.getElementById("status").innerText =
+            "Error getting location";
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0,
+          timeout: 5000
+        }
+      );
+    }
+  </script>
+</body>
+</html>
