@@ -15,21 +15,32 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// SAVE BUS LOCATION
-app.post("/update-location", async (req, res) => {
-  const { busId, lat, lng } = req.body;
-
-  if (!busId || !lat || !lng) {
-    return res.status(400).send("Missing data");
-  }
-
-  await db.ref("buses/" + busId).set({
-    lat,
-    lng,
-    time: Date.now()
-  });
-
-  res.send("Location updated");
+app.get("/", (req, res) => {
+  res.send("Bus Tracking Backend Running");
 });
 
-app.listen(5000, () => console.log("Server running on port 5000"));
+// SAVE / UPDATE BUS LOCATION
+app.post("/update-location", async (req, res) => {
+  try {
+    const { busId, lat, lng } = req.body;
+
+    if (!busId || typeof lat !== "number" || typeof lng !== "number") {
+      return res.status(400).json({ error: "Invalid data" });
+    }
+
+    await db.ref("buses/" + busId).update({
+      lat,
+      lng,
+      updatedAt: Date.now()
+    });
+
+    res.json({ status: "Location updated" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+const PORT = 5000;
+app.listen(PORT, () => console.log("Server running on port " + PORT));
