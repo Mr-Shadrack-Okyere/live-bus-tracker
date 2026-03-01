@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>KNUST Bus Tracker</title>
+</head>
+<body>
+  <h2>Tracking Bus Location...</h2>
+
+  <script>
+    const busId = "bus1"; // change per bus
+
+    function sendLocation(position) {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+
+      fetch("http://YOUR_SERVER_IP:5000/update-location", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ busId, lat, lng })
+      });
+
+      console.log("Sent:", lat, lng);
+    }
+
+    function error(err) {
+      console.log("GPS error", err);
+    }
+
+    navigator.geolocation.watchPosition(sendLocation, error, {
+      enableHighAccuracy: true,
+      maximumAge: 0,
+      timeout: 5000
+    });
+  </script>
+</body>
+</html>
